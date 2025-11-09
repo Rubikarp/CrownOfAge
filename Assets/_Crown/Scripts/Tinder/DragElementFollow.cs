@@ -22,14 +22,20 @@ public class DragElementFollow : MonoBehaviour
     [Header("Info")]
     [SerializeField, ReadOnly] public Vector3 targetPos;
     [SerializeField, ReadOnly] public Vector3 trajectory;
+    [SerializeField, ReadOnly] public float velocitySpeed;
     [field: SerializeField, ReadOnly] public Vector3 Velocity { get; private set; }
 
     private void Awake()
     {
         rectTransform = GetComponent<RectTransform>();
     }
-
     private void Update()
+    {
+        SyncWithLinkedElement();
+        FollowCard();
+    }
+
+    private void SyncWithLinkedElement()
     {
         //Force same parent
         if (transform.parent != linkedElement.RectTransform.parent)
@@ -46,10 +52,7 @@ public class DragElementFollow : MonoBehaviour
         {
             transform.name = $"{linkedElement.name}-Visual";
         }
-
-        FollowCard();
     }
-
     private void FollowCard()
     {
         targetPos = linkedElement.RectTransform.position + offset;
@@ -70,5 +73,7 @@ public class DragElementFollow : MonoBehaviour
             if (Velocity.magnitude > maxVelocity) Velocity = Velocity.normalized * maxVelocity;
             RectTransform.position += Velocity * Time.deltaTime;
         }
+
+        velocitySpeed = Velocity.magnitude;
     }
 }

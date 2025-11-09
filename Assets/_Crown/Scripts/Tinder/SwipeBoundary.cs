@@ -17,7 +17,6 @@ public class SwipeBoundary : MonoBehaviour
     [Header("Settings")]
     [SerializeField] private float visibilityDistanceMultiplier = 1.5f;
     [SerializeField] private AnimationCurve alphaOverDetection = AnimationCurve.Linear(0f, 0f, 1f, 1f);
-
     public float DetectionDistance => rectTransform.rect.width * BorderDetectionRatio;
     public float BorderDetectionRatio
     {
@@ -33,8 +32,8 @@ public class SwipeBoundary : MonoBehaviour
     [SerializeField, ReadOnly] private Vector3[] boundaryCorners = new Vector3[4];
 
     [Header("Events")]
-    public UnityEvent OnSwipeLeft;
-    public UnityEvent OnSwipeRight;
+    public UnityEvent<SwipeCard> OnSwipeLeft;
+    public UnityEvent<SwipeCard> OnSwipeRight;
 
     private void Awake()
     {
@@ -48,27 +47,26 @@ public class SwipeBoundary : MonoBehaviour
         acceptBorder.SetAlpha(0f);
     }
 
-    public void ReactToPos(RectTransform element)
+    public void ReactToPos(SwipeCard card)
     {
-        element.GetLocalCorners(elementCorners);
-        distFromLeftBorder = (elementCorners[0].x + element.position.x) - (boundaryCorners[0].x + rectTransform.position.x);
-        distFromRightBorder = (boundaryCorners[2].x + rectTransform.position.x) - (elementCorners[2].x + element.position.x);
+        card.movement.RectTransform.GetLocalCorners(elementCorners);
+        distFromLeftBorder = (elementCorners[0].x + card.movement.RectTransform.position.x) - (boundaryCorners[0].x + rectTransform.position.x);
+        distFromRightBorder = (boundaryCorners[2].x + rectTransform.position.x) - (elementCorners[2].x + card.movement.RectTransform.position.x);
 
         float rawLeftAlpha = Mathf.InverseLerp(DetectionDistance * visibilityDistanceMultiplier, 0f, distFromLeftBorder);
         rejectBorder.SetAlpha(alphaOverDetection.Evaluate(rawLeftAlpha));
         float rawRightAlpha = Mathf.InverseLerp(DetectionDistance * visibilityDistanceMultiplier, 0f, distFromRightBorder);
         acceptBorder.SetAlpha(alphaOverDetection.Evaluate(rawRightAlpha));
     }
-
-    public void ReactToRelease(RectTransform element)
+    public void ReactToRelease(SwipeCard card)
     {
-        element.GetLocalCorners(elementCorners);
-        distFromLeftBorder = (elementCorners[0].x + element.position.x) - (boundaryCorners[0].x + rectTransform.position.x);
-        distFromRightBorder = (boundaryCorners[2].x + rectTransform.position.x) - (elementCorners[2].x + element.position.x);
+        card.movement.RectTransform.GetLocalCorners(elementCorners);
+        distFromLeftBorder = (elementCorners[0].x + card.movement.RectTransform.position.x) - (boundaryCorners[0].x + rectTransform.position.x);
+        distFromRightBorder = (boundaryCorners[2].x + rectTransform.position.x) - (elementCorners[2].x + card.movement.RectTransform.position.x);
 
         if (distFromLeftBorder < DetectionDistance)
-            OnSwipeLeft.Invoke();
+            OnSwipeLeft.Invoke(card);
         else if (distFromRightBorder < DetectionDistance)
-            OnSwipeRight.Invoke();
+            OnSwipeRight.Invoke(card);
     }
 }
