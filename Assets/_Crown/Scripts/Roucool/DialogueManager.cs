@@ -48,13 +48,13 @@ public class DialogueManager : MonoBehaviour
     {
         dialogueIsPlaying = false;
         dialoguePanel.SetActive(false);
-        DialogueManager.GetInstance().StartStory();
         // get all of the choices text 
         choicesText = new TextMeshProUGUI[choices.Length];
         for (int index = 0; index < choices.Length; index++)
         {
             choicesText[index] = choices[index].GetComponentInChildren<TextMeshProUGUI>();
         }
+        DialogueManager.GetInstance().StartStory();
     }
 
     public void StartStory() => StartStory(currentStoryJSON);
